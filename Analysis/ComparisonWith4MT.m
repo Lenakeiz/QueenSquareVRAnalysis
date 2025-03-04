@@ -26,8 +26,7 @@ trialTypeColors = {
 };
 
 % Bonferroni correction for multiple comparisons
-bonferroni_alpha = 0.05/3;
-disp(['Bonferroni-corrected significance threshold: p < ' num2str(bonferroni_alpha)]);
+bonferroni_alpha = 0.015;
 
 % Create a plot for each trial type
 for trialType = 1:3
@@ -99,7 +98,7 @@ for trialType = 1:3
     if p_value < 0.001
         p_text = 'p < 0.001';
     else
-        p_text = ['p = ' num2str(p_value, 2)];
+        p_text = ['p = ' num2str(p_value, '%.3f')];
     end
 
     % Add asterisk if significant after Bonferroni correction
@@ -107,7 +106,7 @@ for trialType = 1:3
         p_text = [p_text '*'];
     end
     
-    text(4, 5, [p_text ', R^{2}_{adj} = ' num2str(R2_adjusted, 2)], 'FontSize', fontSize, 'FontName', config.plotSettings.FontName);
+    text(3.8, 5, [p_text ', R^{2}_{adj} = ' num2str(R2_adjusted, 2)], 'FontSize', fontSize, 'FontName', config.plotSettings.FontName);
     
     % Ensure the Output folder exists
     outputFolder = 'Output';
