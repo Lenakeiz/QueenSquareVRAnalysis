@@ -10,7 +10,6 @@
 % % ParticipantGroup:
 % %     YC  = 1; Young controls
 % %     HC  = 2; Healthy controls
-% %     MCI = 99; Mild Cognitive Impairment, not used in this analysis
 % % 
 % % 
 
