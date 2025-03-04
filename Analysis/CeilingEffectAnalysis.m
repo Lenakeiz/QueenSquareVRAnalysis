@@ -1,6 +1,8 @@
- %% Ceiling Effect Analysis
+%% Ceiling Effect Analysis
 % This script analyzes potential floor effects in the data
 % (since we're measuring error, where lower values are better)
+
+close all;
 
 %% ------ Load data ------
 AlloDataBlock = AlloData(:, {'ParticipantID', 'ParticipantGroup', 'TrialNumber', 'TrialType', 'ConfigurationType', 'MeanAbsError'});
@@ -48,8 +50,45 @@ resultsTable = table('Size', [numConditions, 8], ...
 % Set condition names
 resultsTable.Condition = conditionNames';
 
-% Create figure for histograms
-figure('Position', [100, 100, 1200, 800]);
+% Desired figure size
+plotWidthInches = 5.5;  % Width in inches
+plotHeightInches = 4.5; % Height in inches
+
+dpi = 300;
+
+% Create figure and set the size and background color to white
+figure('Units', 'inches', 'Position', [1, 1, plotWidthInches, plotHeightInches], 'Color', 'white');
+
+% Set paper size for saving in inches
+set(gcf, 'PaperUnits', 'inches');
+set(gcf, 'PaperPosition', [0, 0, plotWidthInches, plotHeightInches]);
+set(gcf, 'PaperSize', [plotWidthInches, plotHeightInches]);
+set(gcf, 'PaperPositionMode', 'auto');  % Ensure that the saved figure matches the on-screen size
+hold on;
+
+% Background color
+set(gcf, 'Color', 'white');
+set(gca, 'Color', 'white');
+
+% Define color codes for conditions
+conditionColors = {
+    config.colorPalette.same_viewpoint, ...
+    config.colorPalette.shifted_viewpoint_walk, ...
+    config.colorPalette.shifted_viewpoint_teleport, ...
+    config.colorPalette.same_viewpoint, ...
+    config.colorPalette.shifted_viewpoint_walk, ...
+    config.colorPalette.shifted_viewpoint_teleport
+};
+
+% Define lighter colors for KDE
+kdeColors = cellfun(@(c) c + 0.2 * (1 - c), conditionColors, 'UniformOutput', false);
+
+% Define color for mean and ideal response
+meanColor = config.colorPalette.GrayScale(4,:); % #1c1c1c
+idealResponseColor = config.colorPalette.four_object; % #2FBF71
+
+% Initialize handles for legend
+legendHandles = gobjects(3, 1);
 
 for i = 1:numConditions
     currentData = flattened_y_data{i};
@@ -69,34 +108,66 @@ for i = 1:numConditions
     % Plot histogram with normal fit
     subplot(2, 3, i);
 
-    histogram(currentData, 'Normalization', 'probability', 'FaceAlpha', 0.7);
+    % Set bin width to 0.2 and use condition color
+    h = histogram(currentData, 'BinWidth', 0.3, 'Normalization', 'probability', 'FaceAlpha', 0.7, 'FaceColor', conditionColors{i});
     hold on;
 
-    % Add kernel density estimate
-    [f, xi] = ksdensity(currentData);
-    plot(xi, f, 'r-', 'LineWidth', 2);
+    % Add kernel density estimate with lighter color
+    [f, xi] = ksdensity(currentData, 'Bandwidth', 0.45);
+    plot(xi, f, 'Color', kdeColors{i}, 'LineWidth', 2);
     
-    % Add vertical line for theoretical minimum (0)
-    xline(0, 'g--', 'LineWidth', 2);
+    % Add vertical line for theoretical minimum (0) with ideal response color
+    xline(0, 'Color', idealResponseColor, 'LineWidth', 2.5, 'LineStyle', '--');
     
-    % Add vertical line for mean
-    xline(resultsTable.Mean(i), 'b-', 'LineWidth', 2);
+    % Add vertical line for mean with mean color
+    xline(resultsTable.Mean(i), 'Color', meanColor, 'LineWidth', 2);
     
-    % Add title with key statistics
-    title(sprintf('%s\nMean=%.2f, SD=%.2f, Skew=%.2f\nShapiro p=%.4f', ...
-          conditionNames{i}, resultsTable.Mean(i), resultsTable.SD(i), ...
-          resultsTable.Skewness(i), resultsTable.ShapiroP(i)));
-    
-    xlabel('Absolute Distance Error (m)');
+    xlabel('ADE (m)');
     ylabel('Probability');
     grid on;
     
     % Set consistent x-axis limits for better comparison
     xlim([0, 5]);
+    
+    % Set consistent y-axis limits for probability
+    ylim([0, 1]);
+    
+        % Display skewness value
+    skewnessValue = resultsTable.Skewness(i);
+    text(0.5, 1.05, sprintf('Skewness: %.2f', skewnessValue), 'Units', 'normalized', 'FontSize', 10, 'HorizontalAlignment', 'center');
+
+    % Store one handle per condition for the legend
+    if i == 1
+        legendHandles(1) = h;
+    elseif i == 2
+        legendHandles(2) = h;
+    elseif i == 3
+        legendHandles(3) = h;
+    end
+
+    % Remove top and right axes
+    box off;
+    set(gca, 'XColor', 'k', 'YColor', 'k');
+    ax = gca;
+    ax.XAxis.Color = 'k';
+    ax.YAxis.Color = 'k';
+
 end
 
 % Add overall title
-sgtitle('Distribution Analysis for Ceiling Effect Assessment', 'FontSize', 16);
+sgtitle('Distribution plots for movement condition', 'FontSize', 14);
+
+% Add row titles
+annotation('textbox', [0.9, 0.75, 0, 0], 'String', 'Young', 'FontSize', 12, 'EdgeColor', 'none', ...
+           'HorizontalAlignment', 'center', 'Units', 'normalized', 'Rotation', 90);
+annotation('textbox', [0.9, 0.25, 0, 0], 'String', 'Older', 'FontSize', 12, 'EdgeColor', 'none', ...
+           'HorizontalAlignment', 'center', 'Units', 'normalized', 'Rotation', 90);
+
+% Add legend at the bottom
+legend(legendHandles, {'same-view', 'shifted-view (walk)', 'shifted-view (teleport)'}, ...
+       'Position', [0.35, 0.0, 0.3, 0.05], 'Orientation', 'horizontal', 'Box', 'off');
+
+hold off;
 
 %% ------ Floor Effect Assessment ------
 % Calculate distance from theoretical minimum (0) in standard deviation units
@@ -114,46 +185,134 @@ disp('Distribution Analysis Results:');
 disp(resultsTable);
 
 %% ------ Floor Effect Visualization ------
-figure('Position', [100, 100, 1000, 600]);
+% Desired figure size for the second figure - increase width to accommodate legend
+plotWidthInches = 3.5;  % Increased width to accommodate legend
+plotHeightInches = 4.5; % Height in inches
 
-% Plot distance from floor in SD units
-subplot(2, 1, 1);
-bar(resultsTable.DistanceFromFloor);
+% Create second figure and set the size and background color to white
+figure('Units', 'inches', 'Position', [1, 1, plotWidthInches, plotHeightInches], 'Color', 'white');
+
+% Set paper size for saving in inches
+set(gcf, 'PaperUnits', 'inches');
+set(gcf, 'PaperPosition', [0, 0, plotWidthInches, plotHeightInches]);
+set(gcf, 'PaperSize', [plotWidthInches, plotHeightInches]);
+set(gcf, 'PaperPositionMode', 'auto');  % Ensure that the saved figure matches the on-screen size
+
+% Background color
+set(gcf, 'Color', 'white');
+
+% Create a tighter layout for the plots to leave room for legend
+subplot('Position', [0.1, 0.55, 0.55, 0.35]); % [left, bottom, width, height]
+b1 = bar(resultsTable.DistanceFromFloor, 'FaceColor', 'flat', 'FaceAlpha', 0.7);
+
+% Use the color scheme for each condition
+for k = 1:numConditions
+    b1.CData(k, :) = conditionColors{k};
+end
+
 hold on;
-yline(1, 'r--', 'LineWidth', 2); % Reference line at 1 SD
+yline(1, 'Color', config.colorPalette.four_object, 'LineWidth', 2, 'LineStyle', '--'); % Reference line
 grid on;
-xticks(1:numConditions);
-xticklabels(conditionNames);
-xtickangle(45);
-ylabel('Distance from Floor (in SD units)');
-title('Distance of Mean from Theoretical Minimum (0)');
+
+% Add x-axis labels
+xticks([2, 5]);  % Position 2 is the middle of the Young group, 5 is the middle of the Older group
+xticklabels({'Young', 'Older'});
+xlabel('Age Group');
+
+% Add separation between young and older
+xline(3.5, 'Color', 'k', 'LineWidth', 1, 'LineStyle', ':');
+
+% Remove title
+title('');
+% Update y-axis label with more information
+ylabel('Distance from Floor (d/\sigma)');
+
+% Create invisible bars for the legend
+hold on;
+h1 = bar(nan, 'FaceColor', conditionColors{1}, 'FaceAlpha', 0.7);
+h2 = bar(nan, 'FaceColor', conditionColors{2}, 'FaceAlpha', 0.7);
+h3 = bar(nan, 'FaceColor', conditionColors{3}, 'FaceAlpha', 0.7);
+
+% Remove top and right axes
+box off;
+set(gca, 'XColor', 'k', 'YColor', 'k');
+ax = gca;
+ax.XAxis.Color = 'k';
+ax.YAxis.Color = 'k';
 
 % Plot percentage of values within 1 SD of floor
-subplot(2, 1, 2);
-bar(resultsTable.PercentWithin1SD);
+subplot('Position', [0.1, 0.1, 0.55, 0.35]); % [left, bottom, width, height]
+b2 = bar(resultsTable.PercentWithin1SD, 'FaceColor', 'flat', 'FaceAlpha', 0.7);
+
+% Use the color scheme for each condition
+for k = 1:numConditions
+    b2.CData(k, :) = conditionColors{k};
+end
+
 hold on;
-yline(15, 'r--', 'LineWidth', 2); % Reference line at 15%
+yline(15, 'Color', config.colorPalette.four_object, 'LineWidth', 2, 'LineStyle', '--'); % Reference line
 grid on;
-xticks(1:numConditions);
-xticklabels(conditionNames);
-xtickangle(45);
-ylabel('Percentage (%)');
-title('Percentage of Values Within 1 SD of Floor (0)');
 
-% Add overall title
-sgtitle('Floor Effect Assessment Metrics', 'FontSize', 16);
+% Add x-axis labels
+xticks([2, 5]);  % Position 2 is the middle of the Young group, 5 is the middle of the Older group
+xticklabels({'Young', 'Older'});
+xlabel('Age Group');
 
+% Add separation between young and older
+xline(3.5, 'Color', 'k', 'LineWidth', 1, 'LineStyle', ':');
 
-%% ------ Save Results ------
+ylabel('% of values where d < 1\sigma');
+
+% Remove top and right axes
+box off;
+set(gca, 'XColor', 'k', 'YColor', 'k');
+ax = gca;
+ax.XAxis.Color = 'k';
+ax.YAxis.Color = 'k';
+
+% Add legend with adjusted position to ensure it's visible
+hLegend = legend([h1, h2, h3], {'same-view', 'shifted-view (walk)', 'shifted-view (teleport)'}, ...
+       'Orientation', 'vertical', 'Box', 'off');
+
+% Position the legend outside the plot area
+hLegend.Position = [0.72, 0.45, 0.2, 0.1]; % Adjust these values as needed
+hLegend.ItemTokenSize = [15, 10]; % [width, height] in points
+
 % Ensure the Output folder exists
 outputFolder = 'Output';
 if ~exist(outputFolder, 'dir')
     mkdir(outputFolder);
 end
 
-% Save figures
-print(figure(1), fullfile(outputFolder, 'ceiling_effect_distributions.png'), '-dpng', '-r300');
-print(figure(2), fullfile(outputFolder, 'ceiling_effect_metrics.png'), '-dpng', '-r300');
+% Define the full paths for saving
+pngFile = fullfile(outputFolder, 'distribution_plots_ceiling_check.png');
+svgFile = fullfile(outputFolder, 'distribution_plots_ceiling_check.svg');
+pdfFile = fullfile(outputFolder, 'distribution_plots_ceiling_check.pdf');
+
+% Save the figure as PNG with the specified DPI
+print(figure(1), pngFile, '-dpng',  ['-r' num2str(dpi)]); % Save as PNG with specified resolution
+
+% Save the figure as SVG with a tight layout
+print(figure(1), svgFile, '-dsvg'); % Save as SVG
+
+print(figure(1), pdfFile, '-dpdf',  ['-r' num2str(dpi)]); % Save as PDF with specified resolution
+
+disp(['Figure saved as ' pngFile ' and ' svgFile ' and ' pdfFile]);
+
+% Define the full paths for saving
+pngFile = fullfile(outputFolder, 'ceiling_effect_metrics.png');
+svgFile = fullfile(outputFolder, 'ceiling_effect_metrics.svg');
+pdfFile = fullfile(outputFolder, 'ceiling_effect_metrics.pdf');
+
+% Save the figure as PNG with the specified DPI
+print(figure(2), pngFile, '-dpng',  ['-r' num2str(dpi)]); % Save as PNG with specified resolution
+
+% Save the figure as SVG with a tight layout
+print(figure(2), svgFile, '-dsvg'); % Save as SVG
+
+print(figure(2), pdfFile, '-dpdf',  ['-r' num2str(dpi)]); % Save as PDF with specified resolution
+
+disp(['Figure saved as ' pngFile ' and ' svgFile ' and ' pdfFile]);
 
 %% Clearing the workspace
 clearvars -except AlloData AlloData_Elderly_4MT HCData YCData AlloData_SPSS_Cond_Conf AlloData_SPSS_Cond_Conf_Block AlloData_SPSS_Cond_Conf_VirtualBlock config RetrievalTime
