@@ -122,8 +122,8 @@ for i = 1:numConditions
     % Add vertical line for mean with mean color
     xline(resultsTable.Mean(i), 'Color', meanColor, 'LineWidth', 2);
     
-    xlabel('ade (m)');
-    ylabel('probability');
+    xlabel('ADE (m)');
+    ylabel('Probability');
     grid on;
     
     % Set consistent x-axis limits for better comparison
@@ -134,7 +134,7 @@ for i = 1:numConditions
     
         % Display skewness value
     skewnessValue = resultsTable.Skewness(i);
-    text(0.5, 1.05, sprintf('skewness: %.2f', skewnessValue), 'Units', 'normalized', 'FontSize', 10, 'HorizontalAlignment', 'center');
+    text(0.5, 1.05, sprintf('Skewness: %.2f', skewnessValue), 'Units', 'normalized', 'FontSize', 10, 'HorizontalAlignment', 'center');
 
     % Store one handle per condition for the legend
     if i == 1
@@ -154,10 +154,13 @@ for i = 1:numConditions
 
 end
 
+% Add overall title
+sgtitle('Distribution plots for movement condition', 'FontSize', 14);
+
 % Add row titles
-annotation('textbox', [0.9, 0.75, 0, 0], 'String', 'young', 'FontSize', 12, 'EdgeColor', 'none', ...
+annotation('textbox', [0.9, 0.75, 0, 0], 'String', 'Young', 'FontSize', 12, 'EdgeColor', 'none', ...
            'HorizontalAlignment', 'center', 'Units', 'normalized', 'Rotation', 90);
-annotation('textbox', [0.9, 0.25, 0, 0], 'String', 'older', 'FontSize', 12, 'EdgeColor', 'none', ...
+annotation('textbox', [0.9, 0.25, 0, 0], 'String', 'Older', 'FontSize', 12, 'EdgeColor', 'none', ...
            'HorizontalAlignment', 'center', 'Units', 'normalized', 'Rotation', 90);
 
 % Add legend at the bottom
@@ -177,28 +180,8 @@ for i = 1:numConditions
 end
 resultsTable.PercentWithin1SD = percentNearFloor;
 
-%% ------ Statistical Testing for Floor Effects ------
-% Perform one-sample t-tests to verify that each distribution is significantly above zero
-
-% Add columns to the results table for t-test results
-resultsTable.TStatistic = zeros(numConditions, 1);
-resultsTable.PValue = zeros(numConditions, 1);
-resultsTable.CI_Lower = zeros(numConditions, 1);
-resultsTable.CI_Upper = zeros(numConditions, 1);
-
-% Perform t-tests for each condition
-for i = 1:numConditions
-    currentData = flattened_y_data{i};
-    [h, p, ci, stats] = ttest(currentData, 0, 'Alpha', 0.05);
-    
-    resultsTable.TStatistic(i) = stats.tstat;
-    resultsTable.PValue(i) = p;
-    resultsTable.CI_Lower(i) = ci(1);
-    resultsTable.CI_Upper(i) = ci(2);
-end
-
-% Display the complete results table once
-disp('Distribution Analysis Results with Floor Effect Tests:');
+% Display results
+disp('Distribution Analysis Results:');
 disp(resultsTable);
 
 %% ------ Floor Effect Visualization ------
@@ -233,8 +216,8 @@ grid on;
 
 % Add x-axis labels
 xticks([2, 5]);  % Position 2 is the middle of the Young group, 5 is the middle of the Older group
-xticklabels({'young', 'older'});
-xlabel('age group');
+xticklabels({'Young', 'Older'});
+xlabel('Age Group');
 
 % Add separation between young and older
 xline(3.5, 'Color', 'k', 'LineWidth', 1, 'LineStyle', ':');

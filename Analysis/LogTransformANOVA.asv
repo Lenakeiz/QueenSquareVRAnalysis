@@ -1,11 +1,7 @@
 %% Log Transformation ANOVA
 % This script applies a log transformation to the data
-% It checks the normality and skewness after the transformation
-% It also runs a quick ANOVA to check the age group x movement conditon, 
-% however please bare in mind this is not the correct repeated measure
-% required for this analysis.
-% For the full mixed ANOVA please you need to refer to the SPSS output,
-% which include also the configuration and the block
+% It also runs a quick ANOVA to check the age x inter
+% For the full analysis please refer to the SPSS analysis
 
 close all;
 
@@ -285,33 +281,27 @@ fprintf('------------------\n');
 
 fprintf('Same vs shifted-walking\n');
 [h, p, ci, stats] = ttest(flattened_y_data{1}, flattened_y_data{2});
-etaSq = (stats.tstat^2) / (stats.tstat^2 + stats.df);
 all_pvalues(test_idx) = p;
 test_descriptions{test_idx} = 'Young: Same vs shifted-walking';
 test_idx = test_idx + 1;
-fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d, eta-squared = %.4f\n', ...
-        p, ci(1), ci(2), stats.tstat, stats.df, etaSq);
-fprintf('\n');
+fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d\n\n', ...
+        p, ci(1), ci(2), stats.tstat, stats.df);
 
 fprintf('Shifted-walking vs shifted-teleport\n');
 [h, p, ci, stats] = ttest(flattened_y_data{2}, flattened_y_data{3});
-etaSq = (stats.tstat^2) / (stats.tstat^2 + stats.df);
 all_pvalues(test_idx) = p;
 test_descriptions{test_idx} = 'Young: Shifted-walking vs shifted-teleport';
 test_idx = test_idx + 1;
-fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d, eta-squared = %.4f\n', ...
-        p, ci(1), ci(2), stats.tstat, stats.df, etaSq);
-fprintf('\n');
+fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d\n\n', ...
+        p, ci(1), ci(2), stats.tstat, stats.df);
 
 fprintf('Same vs shifted-teleport\n');
 [h, p, ci, stats] = ttest(flattened_y_data{1}, flattened_y_data{3});
-etaSq = (stats.tstat^2) / (stats.tstat^2 + stats.df);
 all_pvalues(test_idx) = p;
 test_descriptions{test_idx} = 'Young: Same vs shifted-teleport';
 test_idx = test_idx + 1;
-fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d, eta-squared = %.4f\n', ...
-        p, ci(1), ci(2), stats.tstat, stats.df, etaSq);
-fprintf('\n');
+fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d\n\n', ...
+        p, ci(1), ci(2), stats.tstat, stats.df);
 
 % Elderly participants
 fprintf('Elderly participants:\n');
@@ -319,32 +309,26 @@ fprintf('--------------------\n');
 
 fprintf('Same vs shifted-walking\n');
 [h, p, ci, stats] = ttest(flattened_y_data{4}, flattened_y_data{5});
-etaSq = (stats.tstat^2) / (stats.tstat^2 + stats.df);
 all_pvalues(test_idx) = p;
 test_descriptions{test_idx} = 'Elderly: Same vs shifted-walking';
 test_idx = test_idx + 1;
-fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d, eta-squared = %.4f\n', ...
-        p, ci(1), ci(2), stats.tstat, stats.df, etaSq);
-fprintf('\n');
+fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d\n\n', ...
+        p, ci(1), ci(2), stats.tstat, stats.df);
 
 fprintf('Shifted-walking vs shifted-teleport\n');
 [h, p, ci, stats] = ttest(flattened_y_data{5}, flattened_y_data{6});
-etaSq = (stats.tstat^2) / (stats.tstat^2 + stats.df);
 all_pvalues(test_idx) = p;
 test_descriptions{test_idx} = 'Elderly: Shifted-walking vs shifted-teleport';
 test_idx = test_idx + 1;
-fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d, eta-squared = %.4f\n', ...
-        p, ci(1), ci(2), stats.tstat, stats.df, etaSq);
-fprintf('\n');
+fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d\n\n', ...
+        p, ci(1), ci(2), stats.tstat, stats.df);
 
 fprintf('Same vs shifted-teleport\n');
 [h, p, ci, stats] = ttest(flattened_y_data{4}, flattened_y_data{6});
-etaSq = (stats.tstat^2) / (stats.tstat^2 + stats.df);
 all_pvalues(test_idx) = p;
 test_descriptions{test_idx} = 'Elderly: Same vs shifted-teleport';
-fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d, eta-squared = %.4f\n', ...
-        p, ci(1), ci(2), stats.tstat, stats.df, etaSq);
-fprintf('\n');
+fprintf('t-Test Results: p-value = %.4f, CI = [%.4f, %.4f], t-stat = %.4f, df = %d\n\n', ...
+        p, ci(1), ci(2), stats.tstat, stats.df);
 
 % Print mean values for reference
 fprintf('Mean values (log-transformed):\n');
