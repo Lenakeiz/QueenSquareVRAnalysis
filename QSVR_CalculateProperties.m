@@ -8,6 +8,7 @@ AlloData.RetrievalTime(isnan(AlloData.RegX)) = nan;
 
 AlloData.MeanAbsError = nan(size(AlloData,1),1);
 AlloData.MeanRetrievalTime = nan(size(AlloData,1),1);
+AlloData.FirstRetrievalTime = nan(size(AlloData,1),1);
 
 uniqueID = unique(AlloData.ParticipantID);
 uniqueTrials = unique(AlloData.TrialNumber);
@@ -17,24 +18,32 @@ for i = 1:size(uniqueID,1)
         f = find(AlloData.ParticipantID == uniqueID(i) & AlloData.TrialNumber == uniqueTrials(j));
         AlloData.MeanAbsError(f(1)) = nanmean(AlloData.AbsError(f));
         AlloData.MeanRetrievalTime(f(1)) = nanmean(AlloData.RetrievalTime(f));
+        
+        % For the first retrieval time, we want the first valid retrieval time in the trial
+        % This is especially important for 4-object configurations
+        validRetrievalTimes = AlloData.RetrievalTime(f);
+        validRetrievalTimes = validRetrievalTimes(~isnan(validRetrievalTimes));
+        if ~isempty(validRetrievalTimes)
+            AlloData.FirstRetrievalTime(f(1)) = validRetrievalTimes(1);
+        end
     end
 end
 
 %Calculating mean for each participant
-AlloData_SPSS_Cond_Conf = cell2table(cell(0,6));%array2table(zeros(size(uniqueID,1) * 6,6) );
-AlloData_SPSS_Cond_Conf.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'MeanADE', 'MeanRT'};
-AlloData_SPSS_Cond_Conf_Block = cell2table(cell(0,7));%array2table(zeros(size(uniqueID,1) * 6,6) );
-AlloData_SPSS_Cond_Conf_Block.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'BlockNumber','MeanADE', 'MeanRT'};
+AlloData_SPSS_Cond_Conf = cell2table(cell(0,7));  % Added one column for FirstRT
+AlloData_SPSS_Cond_Conf.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'MeanADE', 'MeanRT', 'FirstRT'};
+AlloData_SPSS_Cond_Conf_Block = cell2table(cell(0,8));  % Added one column for FirstRT
+AlloData_SPSS_Cond_Conf_Block.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'BlockNumber','MeanADE', 'MeanRT', 'FirstRT'};
 
 ctype = [1; 4];
 blockNumber = [1; 2; 3];
 blockNumberCell = {[1,2] [3,4] [5]};
 
 for i = 1:size(uniqueID,1)
-    tempTable = array2table(zeros(6,6));
-    tempTable_condconfblock = array2table(zeros(18,7));
-    tempTable.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'MeanADE', 'MeanRT'};
-    tempTable_condconfblock.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'BlockNumber', 'MeanADE', 'MeanRT'};
+    tempTable = array2table(zeros(6,7));  % Added one column for FirstRT
+    tempTable_condconfblock = array2table(zeros(18,8));  % Added one column for FirstRT
+    tempTable.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'MeanADE', 'MeanRT', 'FirstRT'};
+    tempTable_condconfblock.Properties.VariableNames = {'ParticipantID', 'ParticipantGroup', 'ConfigurationType', 'TrialType', 'BlockNumber', 'MeanADE', 'MeanRT', 'FirstRT'};
 
     tempTable.ParticipantID = ones(6,1).*uniqueID(i);
     tempTable_condconfblock.ParticipantID = ones(18,1).*uniqueID(i);
@@ -51,6 +60,7 @@ for i = 1:size(uniqueID,1)
             tempTable.TrialType(j + 3*(cti-1)) = j;
             tempTable.MeanADE(j + 3*(cti-1)) = nanmean(AlloData.MeanAbsError(f));
             tempTable.MeanRT(j + 3*(cti-1)) = nanmean(AlloData.MeanRetrievalTime(f));
+            tempTable.FirstRT(j + 3*(cti-1)) = nanmean(AlloData.FirstRetrievalTime(f));
             blockNumberCell = {[1,2] [3,4] [5]};
             if(size(f,1) == 6)
                 blockNumberCell = {[1,2] [3,4] [5,6]};
@@ -83,8 +93,10 @@ for i = 1:size(uniqueID,1)
                 tempTable_condconfblockVirtual.BlockNumber(hh + 3*(j-1) + 9*(cti-1)) = hh;
                 tempTable_condconfblock.MeanADE(hh + 3*(j-1) + 9*(cti-1)) = nanmean(AlloData.MeanAbsError(f));
                 tempTable_condconfblock.MeanRT(hh + 3*(j-1) + 9*(cti-1)) = nanmean(AlloData.MeanRetrievalTime(f));
+                tempTable_condconfblock.FirstRT(hh + 3*(j-1) + 9*(cti-1)) = nanmean(AlloData.FirstRetrievalTime(f));
                 tempTable_condconfblockVirtual.MeanADE(hh + 3*(j-1) + 9*(cti-1)) = nanmean(AlloData.MeanAbsError(f(cell2mat(blockNumberCell(hh)))));
                 tempTable_condconfblockVirtual.MeanRT(hh + 3*(j-1) + 9*(cti-1)) = nanmean(AlloData.MeanRetrievalTime(f(cell2mat(blockNumberCell(hh)))));
+                tempTable_condconfblockVirtual.FirstRT(hh + 3*(j-1) + 9*(cti-1)) = nanmean(AlloData.FirstRetrievalTime(f(cell2mat(blockNumberCell(hh)))));
             end
         end
     end    
