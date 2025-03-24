@@ -61,8 +61,8 @@ AlloData.Trials = {};
 AlloData.Grouped = table();
 
 % creating the groupingData
-vNames = {'ParticipantID' 'ParticipantGroup' 'TrialNumber' 'TrialType' 'ConfigurationType' 'ObjectID' 'StartTime' 'UnityStartTime' 'X' 'Y' 'Z' 'RegX' 'RegY' 'RegZ' 'EndTime' 'UnityEndTime'};
-finalGroupingTable           = array2table(zeros(0,16), 'VariableNames', vNames);
+vNames = {'ParticipantID' 'ParticipantGroup' 'TrialNumber' 'TrialType' 'ConfigurationType' 'ObjectID' 'StartTime' 'UnityStartTime' 'X' 'Y' 'Z' 'RegX' 'RegY' 'RegZ' 'EndTime' 'UnityEndTime' 'SwitchSide'};
+finalGroupingTable           = array2table(zeros(0,17), 'VariableNames', vNames);
 finalGroupingTable.StartTime = datetime(zeros(0,3));
 finalGroupingTable.EndTime   = datetime(zeros(0,3));
 groupingCounter              = 1;
@@ -83,27 +83,24 @@ groupingCounter              = 1;
 
 % %     0 is the longer side of the L shape, 1 otherwise
 % % 
-% % 
-% %     +----------XXXXX
-% %     |               XXX
-% %     +----+            XX
-% %     |    |             XX
-% %     | 0  |               XX
-% %     |    |                X
-% %     |    |                +
-% %     |    |                |
-% %     |    |                |
-% %     |    |                |
-% %     +--------------+      |
-% %     |    |         |      |
-% %     |    |       1 |      |
-% %     +----+---------+-----
+% %     +-----------------+------+
+% %     |                 |      |
+% %     |               0 |      |
+% %     |    +------------+      |
+% %     |    |                   |
+% %     |    |                   |
+% %     |   1|                   |
+% %     +----+                   X
+% %     |                      XX
+% %     |                   XXX  
+% %     +--------------XXXXX
 % %     CONDITIONS:
 % %     WALKEGO = 1;
 % %     WALKALLO = 2;
 % %     TELEPORT = 3;
 
-        AlloData.StartingSide = strcmp(rawData.Block.SwitchSide.Text,'true');
+        % Store the SwitchSide information for this block
+        AlloData.SwitchSide = strcmp(rawData.Block.SwitchSide.Text,'true');
 
         for t = 1 : trials
             
@@ -154,6 +151,7 @@ groupingCounter              = 1;
                 finalGroupingTable.TrialType(groupingCounter)               = AlloData.Trials{t + trials*(j-1)}.Condition;
                 finalGroupingTable.ConfigurationType(groupingCounter)       = AlloData.Trials{t + trials*(j-1)}.ConfigurationType;
                 finalGroupingTable(groupingCounter, 6:1:16)                 = AlloData.Trials{t + trials*(j-1)}.Objects(cInfo,:);
+                finalGroupingTable.SwitchSide(groupingCounter)              = AlloData.SwitchSide;
                 
                 groupingCounter = groupingCounter + 1;
                 %incrementing grouping counter
