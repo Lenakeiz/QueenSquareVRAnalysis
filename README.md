@@ -29,14 +29,15 @@ The project also contains a copy of the following additional packages:
 - [xml2struct](https://github.com/joe-of-all-trades/xml2struct)
 
 ## Usage
-Start by running `QSVR_LoadData.m` to load, preprocess, and extract key metrics from the data.
-To generate figures from the paper, run the scripts in the **Analysis** folder. 
-Script names relate to the analyses they perform rather than to the specific figuer numbers. 
-preprocess and extract the metrcis of interest.
-Plots will be displayed in MATLAB but will also be saved in the **Output** folder.
-SPSS results can be found in the **SPSS_Output** folder.
+To reproduce the analysis, first run `QSVR_LoadData.m`, which loads the data, performs preprocessing, and extracts all of the key metrics.
 
-For details on preprocessing and analysis, refer to the Methods section of the paper.
+Subsequent analysis scripts are located in the **Analysis** folder. These scripts generate the analyses and the figures presented in the paper. Note that script filenames describe the analyses they perform, rather than corresponding directly to specific figure numbers.
+
+Plots will be displayed in MATLAB and also saved in the **Output** folder, which will be created automatically if it does not already exist.
+
+SPSS analysis results are provided in the **SPSS_Output** folder.
+
+For further details on preprocessing and analysis, please refer to the Methods section of the main article and the supplementary information.
 
 ---
 [^1]: Andrea Castegnaro✉️, Alex Dior, Neil Burgess, John King        ✉️ andrea.castegnaro.15@ucl.ac.uk
