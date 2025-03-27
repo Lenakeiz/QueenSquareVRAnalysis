@@ -23,6 +23,11 @@ Requires the following MATLAB toolboxes:
 
 - [Statistics and machine learning](https://uk.mathworks.com/products/statistics.html)
 
+The project also contains a copy of the following additional packages:
+
+- [Ahmed BenSaïda (2025). Shapiro-Wilk and Shapiro-Francia normality tests.](https://www.mathworks.com/matlabcentral/fileexchange/13964-shapiro-wilk-and-shapiro-francia-normality-tests)
+- [xml2struct](https://github.com/joe-of-all-trades/xml2struct)
+
 ## Usage
 Start by running `QSVR_LoadData.m` to load, preprocess, and extract key metrics from the data.
 To generate figures from the paper, run the scripts in the **Analysis** folder. 
