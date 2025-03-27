@@ -327,22 +327,18 @@ for g = 1:2
         bar(xPositions(2), means(g, 1, 2), 0.7, 'FaceColor', colorTeleport, 'EdgeColor', 'k', 'FaceAlpha', vizParams.barAlpha, 'LineWidth', vizParams.barPlotwidth);
     end
     
-    % Then, plot bars for Left Shift
     bar(xPositions(3), means(g, 2, 1), 0.7, 'FaceColor', colorWalking, 'EdgeColor', 'k', 'FaceAlpha', vizParams.barAlpha, 'LineWidth', vizParams.barPlotwidth);
     bar(xPositions(4), means(g, 2, 2), 0.7, 'FaceColor', colorTeleport, 'EdgeColor', 'k', 'FaceAlpha', vizParams.barAlpha, 'LineWidth', vizParams.barPlotwidth);
     
-    % Add error bars last to ensure they're on top
     errorbar(xPositions(1), means(g, 1, 1), sems(g, 1, 1), 'k', 'LineStyle', 'none', 'LineWidth', vizParams.barWidth);
     errorbar(xPositions(2), means(g, 1, 2), sems(g, 1, 2), 'k', 'LineStyle', 'none', 'LineWidth', vizParams.barWidth);
     errorbar(xPositions(3), means(g, 2, 1), sems(g, 2, 1), 'k', 'LineStyle', 'none', 'LineWidth', vizParams.barWidth);
     errorbar(xPositions(4), means(g, 2, 2), sems(g, 2, 2), 'k', 'LineStyle', 'none', 'LineWidth', vizParams.barWidth);
 
-    % Customize plot with lowercase labels
     set(gca, 'XTick', [1.5, 4.5], 'XTickLabel', {'right shift', 'left shift'});
     ylabel('projected error');
     ylim(vizParams.ylimRange);
     
-    % Set only horizontal grid lines
     grid off;  % Turn off all grid lines first
     ax = gca;
     ax.YGrid = 'on';    % Turn on only horizontal grid lines
